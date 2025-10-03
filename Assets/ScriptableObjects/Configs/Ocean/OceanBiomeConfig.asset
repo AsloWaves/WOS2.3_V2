@@ -1,0 +1,237 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb77339a6bf3bd84ab9e95a05ad2e02d, type: 3}
+  m_Name: OceanBiomeConfig
+  m_EditorClassIdentifier: 
+  oceanTileTypes:
+  - tileName: TemperateShallow
+    depthZone: 1
+    minDepth: 0
+    maxDepth: 20
+    baseColor: {r: 0.078431375, g: 0.23529412, b: 0.3137255, a: 1}
+    variationColor: {r: 0.05882353, g: 0.19607843, b: 0.27450982, a: 1}
+    colorVariation: 0.2
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 0.1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: TropicalShallow
+    depthZone: 1
+    minDepth: 0
+    maxDepth: 20
+    baseColor: {r: 0.15686275, g: 0.3137255, b: 0.3529412, a: 1}
+    variationColor: {r: 0.11764706, g: 0.27450982, b: 0.3137255, a: 1}
+    colorVariation: 0.2
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: ArticShallow
+    depthZone: 1
+    minDepth: 0
+    maxDepth: 20
+    baseColor: {r: 0.23529412, g: 0.3137255, b: 0.3529412, a: 1}
+    variationColor: {r: 0.19607843, g: 0.27450982, b: 0.3137255, a: 1}
+    colorVariation: 0.2
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: StandardOcean
+    depthZone: 2
+    minDepth: 20
+    maxDepth: 100
+    baseColor: {r: 0.05882353, g: 0.15686275, b: 0.27450982, a: 1}
+    variationColor: {r: 0.039215688, g: 0.11764706, b: 0.23529412, a: 1}
+    colorVariation: 0.15
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: Mediterranean
+    depthZone: 2
+    minDepth: 20
+    maxDepth: 100
+    baseColor: {r: 0.078431375, g: 0.1764706, b: 0.3137255, a: 1}
+    variationColor: {r: 0.05882353, g: 0.13725491, b: 0.27450982, a: 1}
+    colorVariation: 0.15
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: Atlantic
+    depthZone: 2
+    minDepth: 20
+    maxDepth: 100
+    baseColor: {r: 0.047058824, g: 0.13725491, b: 0.25490198, a: 1}
+    variationColor: {r: 0.03137255, g: 0.09803922, b: 0.21568628, a: 1}
+    colorVariation: 0.15
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 0.1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: StandardDeep
+    depthZone: 3
+    minDepth: 100
+    maxDepth: 400
+    baseColor: {r: 0.03137255, g: 0.09803922, b: 0.19607843, a: 1}
+    variationColor: {r: 0.019607844, g: 0.07058824, b: 0.15686275, a: 1}
+    colorVariation: 0.1
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 0.1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: PacificDeep
+    depthZone: 3
+    minDepth: 100
+    maxDepth: 400
+    baseColor: {r: 0.039215688, g: 0.08627451, b: 0.15686275, a: 1}
+    variationColor: {r: 0.02745098, g: 0.0627451, b: 0.11764706, a: 1}
+    colorVariation: 0.1
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 0.1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: ColdDeep
+    depthZone: 3
+    minDepth: 100
+    maxDepth: 400
+    baseColor: {r: 0.039215688, g: 0.08627451, b: 0.15686275, a: 1}
+    variationColor: {r: 0.02745098, g: 0.0627451, b: 0.11764706, a: 1}
+    colorVariation: 0.13
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 0.1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: MidnightZone
+    depthZone: 4
+    minDepth: 400
+    maxDepth: 510
+    baseColor: {r: 0.05, g: 0.1, b: 0.25, a: 1}
+    variationColor: {r: 0.03, g: 0.08, b: 0.2, a: 1}
+    colorVariation: 0.05
+    waveIntensity: 0.56
+    tilePrefab: {fileID: 0}
+    spawnWeight: 0.1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  - tileName: MarianaTrench
+    depthZone: 4
+    minDepth: 400
+    maxDepth: 500
+    baseColor: {r: 0.007843138, g: 0.019607844, b: 0.05882353, a: 1}
+    variationColor: {r: 0.003921569, g: 0.011764706, b: 0.039215688, a: 1}
+    colorVariation: 0.05
+    waveIntensity: 1.123
+    tilePrefab: {fileID: 0}
+    spawnWeight: 0.1
+    possibleFeatures: []
+    featureSpawnChance: 0
+  useCustomDepthMap: 1
+  customDepthMap: {fileID: 2800000, guid: 66d334e3ec8583345b34c72a3fa97f7b, type: 3}
+  depthMapWorldSize: 4096
+  primaryNoise:
+    noiseScale: 0.01
+    octaves: 2
+    persistence: 0.8
+    lacunarity: 2
+    weight: 1
+    offset:
+      x: 0
+      y: 0
+  secondaryNoise:
+    noiseScale: 0.005
+    octaves: 1
+    persistence: 0.9
+    lacunarity: 2
+    weight: 0.3
+    offset:
+      x: 0
+      y: 0
+  tertiaryNoise:
+    noiseScale: 0.1
+    octaves: 4
+    persistence: 0.5
+    lacunarity: 2
+    weight: 1
+    offset:
+      x: 0
+      y: 0
+  maxOceanDepth: 506
+  depthRemappingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  useDepthGradient: 1
+  depthColorGradient:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  useBiomeRegions: 0
+  biomeNoiseScale: 0.01
+  lodDistance: 321
+  maxTilesPerFrameUpdate: 5

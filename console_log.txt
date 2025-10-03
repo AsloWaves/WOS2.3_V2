@@ -1,0 +1,179 @@
+# Unity Console Log
+
+Paste your Unity console output here. We can then analyze it section by section.
+
+## Instructions:
+1. Copy the Unity console output
+2. Paste it below this line
+3. Save the file
+4. We'll review it together to identify any issues
+
+---
+
+[Paste console output below this line]
+
+[0.00s] <color=#2196F3>[OCEAN]</color> Ocean Biome Config: 11 tile types, Max depth: 506m, Custom map: True
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanChunkManager:ValidateConfiguration () (at Assets/Scripts/Environment/OceanChunkManager.cs:532)
+WOS.Environment.OceanChunkManager:Awake () (at Assets/Scripts/Environment/OceanChunkManager.cs:83)
+
+[0.00s] <color=#2196F3>[OCEAN]</color> Queued 49 tiles for initial spawn
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanChunkManager:SpawnInitialTiles (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:175)
+WOS.Environment.OceanChunkManager:Start () (at Assets/Scripts/Environment/OceanChunkManager.cs:115)
+
+[0.00s] <color=#2196F3>[OCEAN]</color> Initialized with 7x7 grid, tile size: 64
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanChunkManager:Start () (at Assets/Scripts/Environment/OceanChunkManager.cs:117)
+
+[0.20s] <color=#2196F3>[OCEAN]</color> Tile (-3, -3): Depth=506.0m, Type=MidnightZone
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:276)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.20s] <color=#2196F3>[OCEAN]</color> Initialized tile at chunk (-3, -3) with phase 3.70
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:Initialize (UnityEngine.Vector2Int,single) (at Assets/Scripts/Environment/OceanTileController.cs:104)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:307)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.20s] <color=#2196F3>[OCEAN]</color> Tile (-3, -2): Depth=506.0m, Type=MidnightZone
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:276)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.20s] <color=#2196F3>[OCEAN]</color> Initialized tile at chunk (-3, -2) with phase 5.38
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:Initialize (UnityEngine.Vector2Int,single) (at Assets/Scripts/Environment/OceanTileController.cs:104)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:307)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.20s] <color=#2196F3>[OCEAN]</color> Tile (-3, -1): Depth=506.0m, Type=MidnightZone
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:276)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.20s] <color=#2196F3>[OCEAN]</color> Initialized tile at chunk (-3, -1) with phase 3.44
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:Initialize (UnityEngine.Vector2Int,single) (at Assets/Scripts/Environment/OceanTileController.cs:104)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:307)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.21s] <color=#2196F3>[OCEAN]</color> (-3, -3): Visible=False, HighDetail=True, Distance=226.5
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:UpdatePerformanceState () (at Assets/Scripts/Environment/OceanTileController.cs:162)
+WOS.Environment.OceanTileController:Update () (at Assets/Scripts/Environment/OceanTileController.cs:121)
+
+[0.21s] <color=#2196F3>[OCEAN]</color> (-3, -2): Visible=False, HighDetail=True, Distance=186.9
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:UpdatePerformanceState () (at Assets/Scripts/Environment/OceanTileController.cs:162)
+WOS.Environment.OceanTileController:Update () (at Assets/Scripts/Environment/OceanTileController.cs:121)
+
+[0.21s] <color=#2196F3>[OCEAN]</color> (-3, -1): Visible=False, HighDetail=True, Distance=163.5
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:UpdatePerformanceState () (at Assets/Scripts/Environment/OceanTileController.cs:162)
+WOS.Environment.OceanTileController:Update () (at Assets/Scripts/Environment/OceanTileController.cs:121)
+
+[Unity Editor MCP] Status changed to: Connected
+UnityEngine.Debug:Log (object)
+UnityMCPServer.Core.UnityMCPServer:set_Status (UnityMCPServer.Models.McpStatus) (at ./Library/PackageCache/com.akiojin.unity-mcp-server@23ede8c3325f/Editor/Core/UnityMCPServer.cs:54)
+UnityMCPServer.Core.UnityMCPServer/<AcceptConnectionsAsync>d__29:MoveNext () (at ./Library/PackageCache/com.akiojin.unity-mcp-server@23ede8c3325f/Editor/Core/UnityMCPServer.cs:305)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<System.Net.Sockets.TcpClient>:SetResult (System.Net.Sockets.TcpClient)
+UnityMCPServer.Core.UnityMCPServer/<AcceptClientAsync>d__30:MoveNext () (at ./Library/PackageCache/com.akiojin.unity-mcp-server@23ede8c3325f/Editor/Core/UnityMCPServer.cs:343)
+System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
+
+[Unity Editor MCP] Client connected from 127.0.0.1:53270
+UnityEngine.Debug:Log (object)
+UnityMCPServer.Core.UnityMCPServer/<AcceptConnectionsAsync>d__29:MoveNext () (at ./Library/PackageCache/com.akiojin.unity-mcp-server@23ede8c3325f/Editor/Core/UnityMCPServer.cs:306)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<System.Net.Sockets.TcpClient>:SetResult (System.Net.Sockets.TcpClient)
+UnityMCPServer.Core.UnityMCPServer/<AcceptClientAsync>d__30:MoveNext () (at ./Library/PackageCache/com.akiojin.unity-mcp-server@23ede8c3325f/Editor/Core/UnityMCPServer.cs:343)
+System.Threading._ThreadPoolWaitCallback:PerformWaitCallback ()
+
+[0.40s] <color=#2196F3>[OCEAN]</color> Tile (-3, 0): Depth=506.0m, Type=MidnightZone
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:276)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.40s] <color=#2196F3>[OCEAN]</color> Initialized tile at chunk (-3, 0) with phase 1.68
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:Initialize (UnityEngine.Vector2Int,single) (at Assets/Scripts/Environment/OceanTileController.cs:104)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:307)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.40s] <color=#2196F3>[OCEAN]</color> Tile (-3, 1): Depth=506.0m, Type=MidnightZone
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:276)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.40s] <color=#2196F3>[OCEAN]</color> Initialized tile at chunk (-3, 1) with phase 3.43
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:Initialize (UnityEngine.Vector2Int,single) (at Assets/Scripts/Environment/OceanTileController.cs:104)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:307)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.40s] <color=#2196F3>[OCEAN]</color> Tile (-3, 2): Depth=506.0m, Type=MidnightZone
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:276)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.40s] <color=#2196F3>[OCEAN]</color> Initialized tile at chunk (-3, 2) with phase 5.38
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:Initialize (UnityEngine.Vector2Int,single) (at Assets/Scripts/Environment/OceanTileController.cs:104)
+WOS.Environment.OceanChunkManager:SpawnTile (UnityEngine.Vector2Int) (at Assets/Scripts/Environment/OceanChunkManager.cs:307)
+WOS.Environment.OceanChunkManager:ProcessTileQueues () (at Assets/Scripts/Environment/OceanChunkManager.cs:228)
+WOS.Environment.OceanChunkManager:Update () (at Assets/Scripts/Environment/OceanChunkManager.cs:143)
+
+[0.40s] <color=#2196F3>[OCEAN]</color> (-3, 0): Visible=False, HighDetail=True, Distance=163.5
+UnityEngine.Debug:Log (object,UnityEngine.Object)
+WOS.Debugging.DebugManager:LogInternal (WOS.Debugging.DebugCategory,UnityEngine.LogType,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:189)
+WOS.Debugging.DebugManager:Log (WOS.Debugging.DebugCategory,string,UnityEngine.Object) (at Assets/Scripts/Debugging/DebugManager.cs:116)
+WOS.Environment.OceanTileController:UpdatePerformanceState () (at Assets/Scripts/Environment/OceanTileController.cs:162)
+WOS.Environment.OceanTileController:Update () (at Assets/Scripts/Environment/OceanTileController.cs:121)
+

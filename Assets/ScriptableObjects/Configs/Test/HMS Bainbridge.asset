@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f41aab7ae4dc7a640a7d5a8cdc42ffcd, type: 3}
+  m_Name: HMS Bainbridge
+  m_EditorClassIdentifier: 
+  shipName: Frigate
+  shipClass: 1
+  description: Fast patrol vessel with balanced speed and maneuverability
+  length: 85
+  beam: 12
+  displacement: 1200
+  draft: 4.5
+  maxSpeed: 28
+  cruisingSpeed: 18
+  acceleration: 1.2
+  deceleration: 2
+  maxRudderAngle: 35
+  rudderRate: 15
+  turningCircle: 5.2
+  helmResponse: 0.8
+  dragCoefficient: 0.6
+  angularDrag: 2.5
+  lateralDrift: 0.3
+  steerageway: 4
+  cargoCapacity: 400
+  emptyWeight: 800
+  crewSize: 45
+  fuelEndurance: 96
+  operatingRange: 1800
+  speedPenaltyPerTon: 0.003
+  accelerationPenaltyPerTon: 0.005
+  maneuverabilityPenaltyPerTon: 0.004
+  maxWeightPenalty: 0.4
+  shipPrefab: {fileID: 0}
+  wakeEffect: {fileID: 0}
+  shipIcon: {fileID: 0}
+  engineSounds: []
+  hornSound: {fileID: 0}

@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4bd599a2dc4254286f52ebf1507708, type: 3}
+  m_Name: TestNavalCamera
+  m_EditorClassIdentifier: 
+  followSmoothness: 8
+  maxFollowDistance: 25
+  lookAheadDistance: 8
+  speedLookAheadFactor: 1.2
+  minZoom: 4
+  maxZoom: 18
+  defaultZoom: 8
+  zoomSpeed: 2
+  zoomSmoothness: 6
+  panSpeed: 8
+  maxPanDistance: 40
+  returnToTargetSpeed: 3
+  autoReturnDelay: 4
+  allowRotation: 1
+  rotationSpeed: 45
+  rotationSmoothness: 8
+  defaultRotation: 0
+  enableScreenShake: 1
+  shakeIntensity: 0.5
+  shakeDuration: 0.3
+  shakeFrequency: 30
+  speedBasedShake: 0
+  shakeSpeedThreshold: 15
+  speedBasedZoom: 1
+  maxSpeedZoomFactor: 2
+  useBoundaries: 0
+  worldBounds:
+    serializedVersion: 2
+    x: -500
+    y: -500
+    width: 1000
+    height: 1000
+  boundaryPadding: 20
+  backgroundColor: {r: 0.1, g: 0.2, b: 0.4, a: 1}
+  useOrthographic: 1
+  cameraDepth: -10
+  updateFrequency: 60
+  useFixedUpdate: 0
+  cullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295

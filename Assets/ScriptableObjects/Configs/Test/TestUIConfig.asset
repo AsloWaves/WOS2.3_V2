@@ -1,0 +1,121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5e836fe09dfa9b4e943b71d8717668b, type: 3}
+  m_Name: TestUIConfig
+  m_EditorClassIdentifier: 
+  primaryColor: {r: 0.15, g: 0.25, b: 0.35, a: 0.9}
+  secondaryColor: {r: 0.25, g: 0.4, b: 0.6, a: 1}
+  textPrimary: {r: 0.9, g: 0.9, b: 0.9, a: 1}
+  textSecondary: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  successColor: {r: 0.2, g: 0.8, b: 0.3, a: 1}
+  warningColor: {r: 0.9, g: 0.7, b: 0.2, a: 1}
+  errorColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
+  accentColor: {r: 0.3, g: 0.7, b: 0.9, a: 1}
+  oceanColor: {r: 0.1, g: 0.3, b: 0.6, a: 1}
+  navigationColor: {r: 0.9, g: 0.8, b: 0.3, a: 1}
+  cargoColor: {r: 0.6, g: 0.4, b: 0.2, a: 1}
+  portColor: {r: 0.4, g: 0.6, b: 0.3, a: 1}
+  animationDuration: 0.3
+  fastAnimationDuration: 0.15
+  slowAnimationDuration: 0.8
+  easingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  bounceEasing:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.5
+      value: 1.2
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  useFadeInAnimation: 1
+  useSlideInAnimation: 1
+  slideDirection: 3
+  panelBackgroundOpacity: 0.85
+  modalOverlayOpacity: 0.6
+  buttonHoverMultiplier: 1.2
+  buttonPressMultiplier: 0.8
+  buttonDisableMultiplier: 0.5
+  buttonPressScale: 0.95
+  primaryFont: {fileID: 0}
+  secondaryFont: {fileID: 0}
+  monospaceFont: {fileID: 0}
+  defaultFontSize: 14
+  largeFontSize: 20
+  smallFontSize: 12
+  standardSpacing: 8
+  largeSpacing: 16
+  smallSpacing: 4
+  borderRadius: 6
+  enableResponsiveScaling: 1
+  referenceResolution: {x: 1920, y: 1080}
+  matchWidthOrHeight: 0.5
+  minScaleFactor: 0.7
+  maxScaleFactor: 1.5
+  buttonClickSound: {fileID: 0}
+  buttonHoverSound: {fileID: 0}
+  panelOpenSound: {fileID: 0}
+  panelCloseSound: {fileID: 0}
+  errorSound: {fileID: 0}
+  successSound: {fileID: 0}
+  uiVolumeMultiplier: 0.7
+  maxUpdateRate: 60
+  enableObjectPooling: 1
+  useGPUInstancing: 0
+  cullOffscreenElements: 1

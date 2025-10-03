@@ -1,0 +1,81 @@
+# Unity generated files
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# Memory and Recording captures
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# Rider plugin
+[Aa]ssets/Plugins/Editor/JetBrains*
+
+# Visual Studio cache
+.vs/
+
+# Gradle cache
+.gradle/
+
+# VS/MD/Consulo solution files
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity meta files
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Crash reports
+sysinfo.txt
+
+# Builds
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# Crashlytics
+crashlytics-build.properties
+
+# Addressables
+[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+
+# Streaming Assets
+[Aa]ssets/[Ss]treamingAssets/aa.meta
+[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# IDE
+.idea/
+.vscode/
+*.sln.iml
+
+# OS
+.DS_Store
+Thumbs.db
+Icon
+._*
+
+# Plastic SCM
+.plastic/
+# Packages - only track manifest
+Packages/*
+!Packages/manifest.json
+!Packages/packages-lock.json

@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f72bd0f4c3eba4c41bb72d37671e08d8, type: 3}
+  m_Name: PortConfig
+  m_EditorClassIdentifier: 
+  portName: New Harbor
+  portType: 4
+  portSize: 3
+  portDescription: A bustling harbor serving traders and travelers.
+  harborSceneName: PortHarbor
+  useAsyncLoading: 1
+  harborSpawnPointName: PlayerSpawn
+  protectionRadius: 200
+  showProtectionZoneBoundary: 1
+  protectionWarningDistance: 150
+  services:
+    hasRepairService: 1
+    hasRefuelService: 1
+    hasTradingService: 1
+    hasUpgradeService: 1
+    hasStorageService: 1
+    hasCrewService: 1
+    hasMissionService: 1
+    hasBankingService: 1
+    serviceQuality: 1
+    priceMultiplier: 1
+  prosperityLevel: 0.6
+  tradingVolume: 1
+  securityLevel: 0.7
+  shelterLevel: 0.8
+  waterDepth: 0.7
+  infrastructureQuality: 0.6
+  spawnPoints: []
+  patrolRoutes: []
+  dockingConfig: {fileID: 0}
+  servicesConfig: {fileID: 0}
+  visualConfig: {fileID: 0}
+  uiConfig: {fileID: 0}
+  integrationConfig: {fileID: 0}
