@@ -83,6 +83,90 @@ Code uses Unity 2023+ APIs:
 - Trading mechanics preparation
 - Port interaction systems
 
+## Testing Strategy
+
+**4-Tier Testing System** (See `TESTING_STRATEGY.md` for full details):
+
+### Tier 1: Editor Play Mode (Primary for most work)
+**Use for**: UI, camera, audio, graphics, local scripts, client-only changes
+
+```
+1. Open MainMenu scene in Unity
+2. Click Play
+3. Click "Host (Server + Client)"
+4. Test changes
+5. Iterate rapidly
+```
+
+**Time**: 30 seconds per iteration
+**Perfect for**: In-game menu, HUD, camera tweaks, visual feedback
+
+### Tier 2: Local Build Testing
+**Use for**: Validating Tier 1 changes, performance testing, multi-client on same PC
+
+```powershell
+# Build to test location
+Unity → Build Settings → Build to D:\Updater\WOS_Builds\Test_Local\
+
+# Run build
+.\WavesOfSteel.exe
+```
+
+**Time**: 5-10 minutes per iteration
+**Required before**: Client releases (use update_client.ps1)
+
+### Tier 3: Docker Desktop Testing
+**Use for**: NetworkBehaviour changes, server-specific logic, Linux compatibility
+
+```powershell
+# Build Linux server in Unity (Server Build + Headless Mode)
+cd EdgegapServer
+docker build -t wos-server:local .
+docker run -d -p 7777:7777/udp --name wos-test wos-server:local
+
+# View logs
+docker logs -f wos-test
+
+# Clean up
+docker stop wos-test && docker rm wos-test
+```
+
+**Time**: 15-20 minutes per iteration
+**Required for**: NetworkBehaviour changes before Edgegap deployment
+
+### Tier 4: Edgegap Cloud Testing
+**Use for**: Final validation, production environment, real network latency
+
+```
+Unity → Tools → Edgegap → Server Hosting
+Build Docker Image
+Deploy to Seattle datacenter
+Update ServerConfig.asset with new IP
+Test client connection
+```
+
+**Time**: 30-60 minutes per iteration
+**Required for**: Pre-release validation, server updates
+
+### Decision Matrix
+
+| Change Type | Tier 1 | Tier 2 | Tier 3 | Tier 4 |
+|-------------|--------|--------|--------|--------|
+| UI/HUD | ✅ Primary | ✅ Validation | ❌ Skip | ❌ Skip |
+| Camera/Graphics | ✅ Primary | ✅ Validation | ❌ Skip | ❌ Skip |
+| Audio | ✅ Primary | ✅ Validation | ❌ Skip | ❌ Skip |
+| Local Scripts | ✅ Primary | ✅ Validation | ❌ Skip | ❌ Skip |
+| NetworkBehaviour (minor) | ⚠️ Basic | ✅ Primary | ✅ Validation | ⚠️ Final check |
+| NetworkBehaviour (major) | ⚠️ Basic | ✅ Primary | ✅ Required | ✅ Pre-release |
+| Server Logic | ❌ Cannot test | ⚠️ Limited | ✅ Primary | ✅ Validation |
+| Pre-Release | ❌ Not sufficient | ✅ Required | ✅ Recommended | ✅ **MUST DO** |
+
+**Best Practice**: Always start with Tier 1 (Editor). Only move to higher tiers when needed.
+
+**Time Saved**: Using tiered approach saves ~80% of testing time vs. always deploying to Edgegap.
+
+**Quick Reference**: See `TESTING_QUICK_START.md` for fast decision flowchart.
+
 ## Key Implementation Files
 
 ### Core Systems
