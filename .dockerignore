@@ -1,0 +1,109 @@
+# Docker ignore file for WOS2.3_V2
+# Excludes unnecessary files from Docker build context
+# Significantly reduces build time and image size
+
+# ========================
+# Unity Generated Files
+# ========================
+Library/
+Temp/
+Logs/
+.vs/
+.vscode/
+obj/
+UserSettings/
+
+# ========================
+# Build Artifacts (except target build)
+# ========================
+Builds/*
+!Builds/EdgegapServer/
+
+# ========================
+# Version Control
+# ========================
+.git/
+.gitignore
+.gitattributes
+
+# ========================
+# Documentation
+# ========================
+*.md
+!README.md
+*.txt
+!Builds/EdgegapServer/*.txt
+
+# ========================
+# Unity Project Files (not needed in container)
+# ========================
+ProjectSettings/
+Packages/
+Assets/
+!Assets/StreamingAssets/
+
+# Note: Assets excluded because Unity build includes everything needed
+# StreamingAssets is kept in case runtime data is required
+
+# ========================
+# Development Files
+# ========================
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.csproj
+*.sln
+*.unityproj
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ========================
+# Other Builds
+# ========================
+*.apk
+*.ipa
+*.exe
+*.app
+!Builds/EdgegapServer/ServerBuild
+
+# ========================
+# Test Results
+# ========================
+TestResults/
+*.trx
+*.coverage
+
+# ========================
+# Local Configuration
+# ========================
+.env
+.env.local
+secrets/
+*.key
+*.pem
+
+# ========================
+# CI/CD
+# ========================
+.github/
+.gitlab-ci.yml
+.travis.yml
+azure-pipelines.yml
+
+# ========================
+# Docker Files (handled separately)
+# ========================
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# IMPORTANT: Only Builds/EdgegapServer/ directory is included in Docker image
+# Everything else is excluded to minimize build context and image size

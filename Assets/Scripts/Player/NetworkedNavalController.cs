@@ -33,7 +33,7 @@ namespace WOS.Player
         [SerializeField] private LineRenderer courseLineRenderer;
 
         // Input System Integration (only active for local player)
-        private PlayerInput playerInput;
+        private InputActionAsset inputActions;
         private InputAction steeringAction;
         private InputAction throttleUpAction;
         private InputAction throttleDownAction;
@@ -142,7 +142,7 @@ namespace WOS.Player
         private void OnDestroy()
         {
             // Clean up input events
-            if (isLocalPlayer && playerInput != null)
+            if (isLocalPlayer && inputActions != null)
             {
                 throttleUpAction.performed -= OnThrottleUp;
                 throttleDownAction.performed -= OnThrottleDown;
@@ -150,6 +150,9 @@ namespace WOS.Player
                 setWaypointAction.performed -= OnSetWaypoint;
                 autoNavigateAction.performed -= OnToggleAutoNavigation;
                 clearWaypointsAction.performed -= OnClearWaypoints;
+
+                // Disable input actions
+                inputActions.Disable();
             }
         }
 
@@ -163,37 +166,30 @@ namespace WOS.Player
 
             // Configure Rigidbody2D for naval physics
             shipRigidbody.gravityScale = 0f;
-            shipRigidbody.linearDamping = 0.5f;
+            shipRigidbody.linearDamping = 0f; // No damping for direct velocity control (not force-based)
             shipRigidbody.angularDamping = 2f;
             shipRigidbody.interpolation = RigidbodyInterpolation2D.Interpolate;
         }
 
         private void InitializeInputSystem()
         {
-            // Add PlayerInput component for local player only
-            playerInput = gameObject.GetComponent<PlayerInput>();
-            if (playerInput == null)
-            {
-                playerInput = gameObject.AddComponent<PlayerInput>();
-            }
-
-            // Load the input actions asset
-            var inputActions = Resources.Load<InputActionAsset>("InputSystem_Actions");
+            // Load the input actions asset directly (no PlayerInput component needed for networked games)
+            inputActions = Resources.Load<InputActionAsset>("InputSystem_Actions");
             if (inputActions == null)
             {
                 DebugManager.LogError(DebugCategory.Input, "Failed to load InputSystem_Actions! Place it in Resources folder.", this);
                 return;
             }
 
-            playerInput.actions = inputActions;
-
-            var actionMap = playerInput.actions.FindActionMap("Naval");
+            // Find the Naval action map
+            var actionMap = inputActions.FindActionMap("Naval");
             if (actionMap == null)
             {
                 DebugManager.LogError(DebugCategory.Input, "Naval action map not found!", this);
                 return;
             }
 
+            // Get action references
             steeringAction = actionMap.FindAction("Steering");
             throttleUpAction = actionMap.FindAction("ThrottleUp");
             throttleDownAction = actionMap.FindAction("ThrottleDown");
@@ -203,15 +199,17 @@ namespace WOS.Player
             clearWaypointsAction = actionMap.FindAction("ClearWaypoints");
 
             // Subscribe to input events
-            throttleUpAction.performed += OnThrottleUp;
-            throttleDownAction.performed += OnThrottleDown;
-            emergencyStopAction.performed += OnEmergencyStop;
-            setWaypointAction.performed += OnSetWaypoint;
-            autoNavigateAction.performed += OnToggleAutoNavigation;
-            clearWaypointsAction.performed += OnClearWaypoints;
+            if (throttleUpAction != null) throttleUpAction.performed += OnThrottleUp;
+            if (throttleDownAction != null) throttleDownAction.performed += OnThrottleDown;
+            if (emergencyStopAction != null) emergencyStopAction.performed += OnEmergencyStop;
+            if (setWaypointAction != null) setWaypointAction.performed += OnSetWaypoint;
+            if (autoNavigateAction != null) autoNavigateAction.performed += OnToggleAutoNavigation;
+            if (clearWaypointsAction != null) clearWaypointsAction.performed += OnClearWaypoints;
 
             // Enable the action map
             actionMap.Enable();
+
+            DebugManager.Log(DebugCategory.Input, $"✅ Input System initialized for local player", this);
         }
 
         private void InitializeNavigation()
@@ -519,7 +517,8 @@ namespace WOS.Player
         {
             // Convert physics state
             velocity = new float3(shipRigidbody.linearVelocity.x, shipRigidbody.linearVelocity.y, 0f);
-            currentSpeed = math.length(velocity) * 1.94384f; // m/s to knots
+            // NOTE: currentSpeed is tracked separately in ApplyNavalPhysics() and stays in knots
+            // Do NOT derive from velocity here, as velocity is affected by globalSpeedMultiplier
         }
 
         private void ApplyNavalPhysics()
@@ -539,32 +538,103 @@ namespace WOS.Player
                 targetSpeed = Mathf.Lerp(0f, -maxReverseSpeed, -currentThrottle / 4f);
             }
 
-            targetSpeed *= globalSpeedMultiplier;
-
             // Apply acceleration/deceleration
-            float targetSpeedMs = targetSpeed / 1.94384f; // knots to m/s
-            float currentSpeedMs = currentSpeed / 1.94384f;
-
+            // NOTE: Keep speed in knots for display/naval calculations (DO NOT apply globalSpeedMultiplier here)
+            // globalSpeedMultiplier is applied ONLY to Unity physics velocity (see below)
             float accelRate = (targetSpeed > currentSpeed) ? shipConfig.acceleration : shipConfig.deceleration;
-            float newSpeedMs = Mathf.MoveTowards(currentSpeedMs, targetSpeedMs, accelRate * Time.fixedDeltaTime);
+            float newSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, accelRate * Time.fixedDeltaTime);
 
             // Apply turning with effective rudder angle
             float angularVelocity = 0f;
-            if (Mathf.Abs(effectiveRudderAngle) > 0.01f && Mathf.Abs(newSpeedMs) > 0.1f)
+            if (Mathf.Abs(effectiveRudderAngle) > 0.01f && Mathf.Abs(newSpeed) > 0.1f)
             {
-                // Calculate turn rate from rudder angle and ship characteristics
-                float turningFactor = (shipConfig.rudderRate / shipConfig.length) * 10f; // Simplified turning calculation
-                float turnRate = turningFactor * (effectiveRudderAngle / shipConfig.maxRudderAngle);
-                float speedFactor = Mathf.Clamp01(Mathf.Abs(newSpeedMs) / (shipConfig.maxSpeed / 1.94384f));
-                angularVelocity = turnRate * speedFactor;
+                // Calculate turn rate with realistic ship-length scaling
+                // Base turn rate from ship configuration (already tuned per ship class)
+                float baseTurnRate = shipConfig.rudderRate;
+
+                // Apply gentle length-based scaling (sqrt relationship for realism)
+                // Reference length: 100m (destroyer/cruiser baseline)
+                // Smaller ships turn faster, larger ships turn slower
+                const float referenceLength = 100f;
+                float lengthRatio = shipConfig.length / referenceLength;
+                float lengthScaling = 1f / Mathf.Sqrt(lengthRatio); // Gentler than direct division
+
+                // Apply scaling to base turn rate
+                float maxTurnRate = baseTurnRate * lengthScaling;
+                float currentTurnRate = (effectiveRudderAngle / shipConfig.maxRudderAngle) * maxTurnRate;
+
+                // Speed-based turning effectiveness (bell curve)
+                // newSpeed is already in knots (matches game world units)
+                float speedEffectiveness = CalculateTurningEffectiveness(Mathf.Abs(newSpeed), shipConfig.maxSpeed);
+                currentTurnRate *= speedEffectiveness;
+
+                // NEGATIVE SIGN: Unity 2D rotation is counterclockwise for positive values
+                // We want positive rudder (right turn) to be clockwise, so negate
+                angularVelocity = -currentTurnRate;
             }
 
             // Apply forces
-            Vector2 forwardDirection = transform.up;
-            Vector2 newVelocity = forwardDirection * newSpeedMs;
+            // FIXED: Use transform.right for ships facing right in 2D (default Unity 2D orientation)
+            // If your ship sprite faces UP by default, change this back to transform.up
+            Vector2 forwardDirection = transform.right;
+
+            // Apply globalSpeedMultiplier to Unity physics movement only (not naval speed calculations)
+            // This allows display to show full knots (e.g., 28 kts) while Unity movement is slower (e.g., 14 units/s)
+            Vector2 newVelocity = forwardDirection * newSpeed * globalSpeedMultiplier;
 
             shipRigidbody.linearVelocity = newVelocity;
             shipRigidbody.angularVelocity = angularVelocity;
+
+            // Update currentSpeed for display (stays in knots, not affected by globalSpeedMultiplier)
+            currentSpeed = newSpeed;
+        }
+
+        /// <summary>
+        /// Calculate speed-based turning effectiveness using a bell curve
+        /// Peak effectiveness at ~75% of max speed (Full Ahead)
+        /// </summary>
+        private float CalculateTurningEffectiveness(float currentSpeedKnots, float maxSpeedKnots)
+        {
+            // Always have minimal turning from prop wash when stationary
+            if (currentSpeedKnots <= 0f) return 0.1f;
+
+            // Calculate speed as percentage of max speed
+            float speedPercent = currentSpeedKnots / maxSpeedKnots;
+
+            // Bell curve with peak at 75% speed (Full Ahead)
+            // Uses a Gaussian-like curve for realistic naval physics
+
+            if (speedPercent <= 0.1f)
+            {
+                // Very low speeds (0-10%): Poor steerage, prop wash only
+                // Ramp from 10% to 30% effectiveness
+                return Mathf.Lerp(0.1f, 0.3f, speedPercent / 0.1f);
+            }
+            else if (speedPercent <= 0.75f)
+            {
+                // Low to optimal speeds (10-75%): Increasing effectiveness
+                // Smooth curve from 30% to 100% (peak at Full Ahead)
+                float t = (speedPercent - 0.1f) / 0.65f; // Normalize 0.1-0.75 to 0-1
+                // Use smooth ease-in-out curve
+                float smoothT = t * t * (3f - 2f * t);
+                return Mathf.Lerp(0.3f, 1.0f, smoothT);
+            }
+            else
+            {
+                // High speeds (75-100%+): Decreasing effectiveness due to momentum
+                // Drop from 100% to 80% at flank speed, then further decline
+                float t = (speedPercent - 0.75f) / 0.25f; // Normalize 0.75-1.0 to 0-1
+                float dropOff = Mathf.Lerp(1.0f, 0.8f, t); // Drop to 80% at 100% speed
+
+                // Beyond 100% speed (if ship goes faster than rated max), continue declining
+                if (speedPercent > 1.0f)
+                {
+                    float excessSpeed = speedPercent - 1.0f;
+                    dropOff *= Mathf.Exp(-excessSpeed * 2f); // Exponential decay
+                }
+
+                return dropOff;
+            }
         }
 
         private void UpdateCourseLineVisual()
@@ -622,6 +692,31 @@ namespace WOS.Player
         public float GetCurrentThrottle()
         {
             return currentThrottle;
+        }
+
+        /// <summary>
+        /// Get current ship status for UI display (ShipDebugUI compatibility)
+        /// </summary>
+        public ShipStatus GetShipStatus()
+        {
+            return new ShipStatus
+            {
+                speed = currentSpeed,
+                throttle = currentThrottle,
+                heading = transform.eulerAngles.z,
+                rudderAngle = rudderAngle,
+                isAutoNavigating = autoNavigationEnabled,
+                waypointCount = waypoints != null ? waypoints.Count : 0,
+                currentWaypoint = currentWaypointIndex
+            };
+        }
+
+        /// <summary>
+        /// Get the current ship configuration (ShipDebugUI compatibility)
+        /// </summary>
+        public ShipConfigurationSO GetShipConfiguration()
+        {
+            return shipConfig;
         }
 
         #endregion

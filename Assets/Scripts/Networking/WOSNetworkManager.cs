@@ -154,12 +154,74 @@ namespace WOS.Networking
         }
 
         /// <summary>
+        /// Called on server AFTER scene has finished loading
+        /// This is where we find spawn points in the new scene
+        /// </summary>
+        public override void OnServerSceneChanged(string sceneName)
+        {
+            base.OnServerSceneChanged(sceneName);
+
+            // Automatically find spawn points in the new scene
+            FindSpawnPointsInScene();
+
+            Debug.Log($"✅ Server scene loaded: {sceneName}");
+        }
+
+        /// <summary>
         /// Called on client when server changes scene
         /// </summary>
         public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling)
         {
             base.OnClientChangeScene(newSceneName, sceneOperation, customHandling);
             Debug.Log($"🏝️ Client loading scene: {newSceneName}");
+        }
+
+        /// <summary>
+        /// Automatically find all spawn points in the current scene
+        /// Looks for GameObjects tagged with "SpawnPoint" or children of GameObject named "SpawnPoints"
+        /// </summary>
+        private void FindSpawnPointsInScene()
+        {
+            // Method 1: Find by tag "SpawnPoint"
+            GameObject[] spawnPointObjects = GameObject.FindGameObjectsWithTag("SpawnPoint");
+
+            // Method 2: Find children of GameObject named "SpawnPoints" (fallback if no tags)
+            if (spawnPointObjects.Length == 0)
+            {
+                GameObject spawnPointsParent = GameObject.Find("SpawnPoints");
+                if (spawnPointsParent != null)
+                {
+                    Transform[] childTransforms = spawnPointsParent.GetComponentsInChildren<Transform>();
+                    // Filter out the parent itself
+                    System.Collections.Generic.List<GameObject> childObjects = new System.Collections.Generic.List<GameObject>();
+                    foreach (Transform t in childTransforms)
+                    {
+                        if (t != spawnPointsParent.transform)
+                        {
+                            childObjects.Add(t.gameObject);
+                        }
+                    }
+                    spawnPointObjects = childObjects.ToArray();
+                }
+            }
+
+            if (spawnPointObjects.Length > 0)
+            {
+                // Convert GameObjects to Transforms
+                oceanSpawnPoints = new Transform[spawnPointObjects.Length];
+                for (int i = 0; i < spawnPointObjects.Length; i++)
+                {
+                    oceanSpawnPoints[i] = spawnPointObjects[i].transform;
+                }
+
+                Debug.Log($"🎯 Found {oceanSpawnPoints.Length} spawn points in scene");
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ No spawn points found in scene! Players will spawn at origin (0,0,0)");
+                Debug.LogWarning("💡 Create GameObjects with tag 'SpawnPoint' or children of GameObject named 'SpawnPoints'");
+                oceanSpawnPoints = new Transform[0];
+            }
         }
 
         #endregion

@@ -6,6 +6,7 @@ using WOS.Player;
 using WOS.Debugging;
 using WOS.Environment;
 using WOS.ScriptableObjects;
+using Mirror;
 
 namespace WOS.UI
 {
@@ -51,7 +52,7 @@ namespace WOS.UI
 
         [Header("Ship Reference")]
         [Tooltip("Reference to the ship controller (auto-found if not assigned)")]
-        [SerializeField] private SimpleNavalController shipController;
+        [SerializeField] private MonoBehaviour shipController; // Can be SimpleNavalController or NetworkedNavalController
 
         [Header("Ocean Biome Reference")]
         [Tooltip("Reference to ocean chunk manager for depth info (auto-found if not assigned)")]
@@ -69,21 +70,67 @@ namespace WOS.UI
         // UI Text reference (either TMPro or legacy)
         private Component activeTextComponent;
 
+        // Initialization state
+        private bool isInitialized = false;
+        private float initializationStartTime;
+        private const float INITIALIZATION_TIMEOUT = 30f; // Wait up to 30 seconds for player to spawn
+
         private void Start()
         {
             // Calculate update interval
             updateInterval = 1f / updateRate;
             lastUpdateTime = Time.time;
             lastUpdateTimeForRates = Time.time;
+            initializationStartTime = Time.time;
 
+            // Try initial setup (might not find player yet if they haven't spawned)
+            TryInitialize();
+        }
+
+        private void TryInitialize()
+        {
             // Auto-find ship controller if not assigned
             if (shipController == null)
             {
-                shipController = FindFirstObjectByType<SimpleNavalController>();
+                // First try to find NetworkedNavalController (for multiplayer)
+                var networkedController = FindFirstObjectByType<NetworkedNavalController>();
+                if (networkedController != null)
+                {
+                    // Only show debug UI for LOCAL player in networked mode
+                    if (networkedController.isLocalPlayer)
+                    {
+                        shipController = networkedController;
+                        DebugManager.Log(DebugCategory.UI, "Found NetworkedNavalController (local player)", this);
+                    }
+                    else
+                    {
+                        DebugManager.Log(DebugCategory.UI, "NetworkedNavalController found but not local player - disabling debug UI", this);
+                        enabled = false;
+                        return;
+                    }
+                }
+                else
+                {
+                    // Fallback to SimpleNavalController (for single-player testing)
+                    shipController = FindFirstObjectByType<SimpleNavalController>();
+                    if (shipController != null)
+                    {
+                        DebugManager.Log(DebugCategory.UI, "Found SimpleNavalController", this);
+                    }
+                }
+
+                // If still no controller found, keep waiting (don't disable yet!)
                 if (shipController == null)
                 {
-                    DebugManager.LogWarning(DebugCategory.UI, "No SimpleNavalController found in scene!", this);
-                    enabled = false;
+                    // Check if we've exceeded timeout
+                    if (Time.time - initializationStartTime > INITIALIZATION_TIMEOUT)
+                    {
+                        DebugManager.LogWarning(DebugCategory.UI, "No ship controller found after 30 seconds - disabling debug UI", this);
+                        enabled = false;
+                        return;
+                    }
+                    // Otherwise, keep waiting - will retry in Update()
+                    DebugManager.Log(DebugCategory.UI, "Waiting for player ship to spawn...", this);
                     return;
                 }
             }
@@ -144,6 +191,23 @@ namespace WOS.UI
 
         private void Update()
         {
+            // If not initialized yet, keep trying to find player ship
+            if (!isInitialized && shipController == null)
+            {
+                TryInitialize();
+                if (shipController == null)
+                {
+                    return; // Don't try to update display yet - player hasn't spawned
+                }
+            }
+
+            // Mark as initialized once controller and text component are found
+            if (shipController != null && activeTextComponent != null && !isInitialized)
+            {
+                isInitialized = true;
+                DebugManager.Log(DebugCategory.UI, "✅ ShipDebugUI initialization complete - displaying telemetry", this);
+            }
+
             // Handle F3 toggle key
             if (enableToggleKey && Input.GetKeyDown(KeyCode.F3))
             {
@@ -165,9 +229,25 @@ namespace WOS.UI
         {
             if (shipController == null || activeTextComponent == null) return;
 
-            // Get ship status
-            var shipStatus = shipController.GetShipStatus();
-            var shipConfig = shipController.GetShipConfiguration();
+            // Get ship status from either controller type
+            ShipStatus shipStatus;
+            ShipConfigurationSO shipConfig;
+
+            if (shipController is NetworkedNavalController networkedController)
+            {
+                shipStatus = networkedController.GetShipStatus();
+                shipConfig = networkedController.GetShipConfiguration();
+            }
+            else if (shipController is SimpleNavalController simpleController)
+            {
+                shipStatus = simpleController.GetShipStatus();
+                shipConfig = simpleController.GetShipConfiguration();
+            }
+            else
+            {
+                DebugManager.LogError(DebugCategory.UI, $"Unknown ship controller type: {shipController.GetType().Name}", this);
+                return;
+            }
 
             // Build information string
             string infoText = BuildShipInfoText(shipStatus, shipConfig);
@@ -225,6 +305,12 @@ namespace WOS.UI
             // Get ocean depth and tile information
             string oceanInfo = GetOceanDepthInfo();
 
+            // Get network statistics
+            string networkInfo = GetNetworkStats();
+
+            // Get port navigation information
+            string portInfo = GetPortNavigationInfo();
+
             return $"{header}{separator}" +
                    $"VESSEL: {shipName}{separator}" +
                    $"CLASS: {shipClass}{separator}" +
@@ -237,8 +323,12 @@ namespace WOS.UI
                    $"Rate of Turn: {turnRate}°/s{separator}" +
                    $"Rudder Angle: {rudderAngle}°{separator}" +
                    $"Mode: {navStatus}{separator}" +
+                   $"{separator}NEAREST PORT{separator}" +
+                   portInfo + separator +
                    $"{separator}OCEAN{separator}" +
                    oceanInfo +
+                   $"{separator}NETWORK{separator}" +
+                   networkInfo +
                    (useMuipInputField ? specs.Replace("<b>", "").Replace("</b>", "") : specs);
         }
 
@@ -351,7 +441,21 @@ namespace WOS.UI
 
             if (deltaTime >= 0.1f) // Update rate of turn every 100ms
             {
-                var shipStatus = shipController.GetShipStatus();
+                // Get ship status from either controller type
+                ShipStatus shipStatus;
+                if (shipController is NetworkedNavalController networkedController)
+                {
+                    shipStatus = networkedController.GetShipStatus();
+                }
+                else if (shipController is SimpleNavalController simpleController)
+                {
+                    shipStatus = simpleController.GetShipStatus();
+                }
+                else
+                {
+                    return;
+                }
+
                 float currentBearing = shipStatus.heading;
 
                 // Calculate angular difference (handle 360° wraparound)
@@ -388,14 +492,156 @@ namespace WOS.UI
             DebugManager.Log(DebugCategory.UI, "MUIP InputField configured for ship telemetry display", this);
         }
 
+        /// <summary>
+        /// Get network statistics for multiplayer connections
+        /// </summary>
+        private string GetNetworkStats()
+        {
+            // Check if we're in networked mode
+            if (shipController is not NetworkedNavalController)
+            {
+                return "Network: Single Player Mode";
+            }
+
+            // Check if client is active
+            if (!NetworkClient.active)
+            {
+                return "Network: Not Connected";
+            }
+
+            // Get network statistics from Mirror
+            string connectionStatus = NetworkClient.isConnected ? "Connected" : "Disconnected";
+
+            // Calculate ping/RTT (Mirror uses milliseconds)
+            // NetworkTime.rtt is Round Trip Time in seconds
+            double rttSeconds = NetworkTime.rtt;
+            int rttMs = Mathf.RoundToInt((float)(rttSeconds * 1000.0));
+
+            // Get one-way latency (ping is half of RTT)
+            int pingMs = rttMs / 2;
+
+            // Connection quality indicator
+            string qualityIndicator;
+            if (pingMs < 50)
+                qualityIndicator = "Excellent";
+            else if (pingMs < 100)
+                qualityIndicator = "Good";
+            else if (pingMs < 150)
+                qualityIndicator = "Fair";
+            else if (pingMs < 250)
+                qualityIndicator = "Poor";
+            else
+                qualityIndicator = "Critical";
+
+            // Server/Client mode
+            string mode = NetworkServer.active ? (NetworkClient.active ? "Host" : "Server") : "Client";
+
+            return $"Status: {connectionStatus}\n" +
+                   $"Mode: {mode}\n" +
+                   $"Ping: {pingMs}ms\n" +
+                   $"RTT: {rttMs}ms\n" +
+                   $"Quality: {qualityIndicator}";
+        }
+
+        /// <summary>
+        /// Find nearest port and calculate navigation data
+        /// </summary>
+        private string GetPortNavigationInfo()
+        {
+            if (shipController == null)
+                return "Port: Not Available";
+
+            // Get ship's current position
+            Vector3 shipPos = shipController.transform.position;
+
+            // Find all PortConfigurationSO instances in the scene
+            // (This is a placeholder - in production you'd have a PortManager)
+            var portConfigs = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+
+            PortConfigurationSO nearestPort = null;
+            float nearestDistance = float.MaxValue;
+            Vector3 nearestPortPos = Vector3.zero;
+
+            // Search for ports (placeholder implementation)
+            // In a real implementation, you'd have a PortManager with registered ports
+            foreach (var obj in portConfigs)
+            {
+                // Check if object has a PortConfigurationSO reference
+                var portConfigField = obj.GetType().GetField("portConfig");
+                if (portConfigField != null)
+                {
+                    var portConfig = portConfigField.GetValue(obj) as PortConfigurationSO;
+                    if (portConfig != null)
+                    {
+                        float distance = Vector3.Distance(shipPos, obj.transform.position);
+                        if (distance < nearestDistance)
+                        {
+                            nearestDistance = distance;
+                            nearestPort = portConfig;
+                            nearestPortPos = obj.transform.position;
+                        }
+                    }
+                }
+            }
+
+            // If no ports found, return placeholder
+            if (nearestPort == null)
+            {
+                return "Port: None Detected\n" +
+                       "Bearing: ---°\n" +
+                       "Distance: --- nm";
+            }
+
+            // Calculate absolute world bearing to port
+            Vector3 directionToPort = nearestPortPos - shipPos;
+            // Atan2(y, x) gives angle from positive X axis (which is Unity's 0° rotation)
+            float absoluteBearingRadians = Mathf.Atan2(directionToPort.y, directionToPort.x);
+            float absoluteBearingDegrees = absoluteBearingRadians * Mathf.Rad2Deg;
+
+            // Normalize absolute bearing to 0-360
+            if (absoluteBearingDegrees < 0)
+                absoluteBearingDegrees += 360f;
+
+            // Get ship's current heading (direction ship is facing)
+            float shipHeading = shipController.transform.eulerAngles.z;
+
+            // Calculate RELATIVE bearing (where ship SHOULD point to reach port)
+            // Bearing = angle to turn from current heading
+            // 0° = straight ahead (no turn needed)
+            // 90° = turn 90° to starboard (right)
+            // 270° = turn 90° to port (left)
+            float relativeBearing = absoluteBearingDegrees - shipHeading;
+
+            // Normalize relative bearing to 0-360
+            if (relativeBearing < 0)
+                relativeBearing += 360f;
+            if (relativeBearing >= 360f)
+                relativeBearing -= 360f;
+
+            // Convert distance to nautical miles (1 Unity unit = 1 knot speed unit)
+            // Assuming reasonable Unity scale: 1 Unity unit ≈ 0.01 nautical miles for distance
+            float distanceNauticalMiles = nearestDistance * 0.01f;
+
+            return $"Port: {nearestPort.portName}\n" +
+                   $"Bearing: {relativeBearing:F0}°\n" +
+                   $"Distance: {distanceNauticalMiles:F1} nm";
+        }
+
         #region Public Methods
 
         /// <summary>
-        /// Manually set the ship controller reference
+        /// Manually set the ship controller reference (accepts SimpleNavalController or NetworkedNavalController)
         /// </summary>
-        public void SetShipController(SimpleNavalController controller)
+        public void SetShipController(MonoBehaviour controller)
         {
-            shipController = controller;
+            if (controller is SimpleNavalController || controller is NetworkedNavalController)
+            {
+                shipController = controller;
+            }
+            else
+            {
+                DebugManager.LogError(DebugCategory.UI, $"Invalid controller type: {controller.GetType().Name}. Must be SimpleNavalController or NetworkedNavalController.", this);
+            }
         }
 
         /// <summary>
