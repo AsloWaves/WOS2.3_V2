@@ -1,17 +1,22 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 using TMPro;
 using Mirror;
 using WOS.Networking;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Michsky.MUIP;
 
 namespace WOS.UI
 {
     /// <summary>
     /// Handles Join panel - connects to remote server using IP address
-    /// Includes server status checking and auto-refresh
+    /// Includes server status checking, auto-refresh, and secure server browser integration.
+    ///
+    /// SECURITY: Uses ServerBrowserManager to fetch servers from YOUR backend API.
+    /// Backend keeps Edgegap API token secure (never exposed to clients).
     /// </summary>
     public class JoinMenuController : MonoBehaviour
     {
@@ -25,8 +30,15 @@ namespace WOS.UI
         [Tooltip("MUIP Back button to return to main menu")]
         public ButtonManager backButton;
 
+        [Header("Server Browser (Secure)")]
+        [Tooltip("ServerBrowserManager that fetches servers from YOUR backend (not Edgegap directly)")]
+        public ServerBrowserManager serverBrowser;
+
+        [Tooltip("Auto-select best server on start")]
+        public bool autoSelectBestServer = true;
+
         [Header("Configuration")]
-        [Tooltip("Server configuration (auto-populated with Edgegap server address)")]
+        [Tooltip("Server configuration (auto-populated from server browser or fallback)")]
         public ServerConfig serverConfig;
 
         [Tooltip("Scene to load after connecting (usually Main scene)")]
@@ -37,6 +49,9 @@ namespace WOS.UI
 
         [Tooltip("Timeout for server status check (seconds)")]
         public float statusCheckTimeout = 5f;
+
+        [Tooltip("Port for HTTP health endpoint (must match server configuration)")]
+        public int healthCheckPort = 30407;  // Edgegap external health port (maps to internal 8080)
 
         private NetworkManager networkManager;
         private NetworkAddressManager addressManager;
@@ -94,11 +109,99 @@ namespace WOS.UI
                 Debug.LogWarning("[JoinMenu] ⚠️ Back Button could not be found! Please assign manually.");
             }
 
+            // SECURE SERVER BROWSER INTEGRATION
+            InitializeServerBrowser();
+
             // Start server status checking
             UpdateStatus("Checking server status...");
             StartStatusChecking();
 
             Debug.Log("[JoinMenu] ========== INITIALIZATION COMPLETE ==========");
+        }
+
+        /// <summary>
+        /// Initialize secure server browser integration.
+        /// Fetches servers from YOUR backend (not Edgegap directly).
+        /// </summary>
+        private void InitializeServerBrowser()
+        {
+            if (serverBrowser != null)
+            {
+                Debug.Log("[JoinMenu] 🌐 ServerBrowserManager detected - fetching servers from backend...");
+
+                // Subscribe to server list updates
+                serverBrowser.OnServersUpdated += OnServerListUpdated;
+                serverBrowser.OnError += OnServerBrowserError;
+
+                // Fetch servers
+                serverBrowser.RefreshServers();
+            }
+            else
+            {
+                Debug.LogWarning("[JoinMenu] ⚠️ ServerBrowserManager not assigned - using hardcoded ServerConfig");
+            }
+        }
+
+        /// <summary>
+        /// Called when server list is updated from backend.
+        /// </summary>
+        private void OnServerListUpdated(List<ServerInfo> servers)
+        {
+            Debug.Log($"[JoinMenu] 📋 Received {servers.Count} servers from backend");
+
+            // Log all servers
+            foreach (var server in servers)
+            {
+                string healthStatus = server.isHealthy ? "✅" : "❌";
+                Debug.Log($"[JoinMenu]   {healthStatus} {server.GetDisplayName()} ({server.currentPlayers}/{server.maxPlayers} players) - {server.pingMs}ms - {server.GetConnectionAddress()}");
+            }
+
+            // Auto-select best server if enabled
+            if (autoSelectBestServer && servers.Count > 0)
+            {
+                ServerInfo bestServer = serverBrowser.GetBestServer();
+                if (bestServer != null)
+                {
+                    UpdateServerConfigFromServerInfo(bestServer);
+                    Debug.Log($"[JoinMenu] 🎯 Auto-selected best server: {bestServer.GetDisplayName()}");
+
+                    // Restart health check with updated server config
+                    StopStatusChecking();
+                    StartStatusChecking();
+                    Debug.Log("[JoinMenu] 🔄 Restarted health check with updated server config");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when server browser encounters an error.
+        /// </summary>
+        private void OnServerBrowserError(string error)
+        {
+            Debug.LogError($"[JoinMenu] ❌ Server browser error: {error}");
+            Debug.LogWarning("[JoinMenu] Falling back to hardcoded ServerConfig");
+        }
+
+        /// <summary>
+        /// Update ServerConfig with data from ServerInfo (from backend).
+        /// </summary>
+        private void UpdateServerConfigFromServerInfo(ServerInfo serverInfo)
+        {
+            if (serverConfig == null)
+            {
+                Debug.LogError("[JoinMenu] ⚠️ ServerConfig is null, cannot update!");
+                return;
+            }
+
+            // Update ServerConfig fields
+            serverConfig.serverAddress = serverInfo.GetConnectionAddress();
+            serverConfig.serverLocation = $"{serverInfo.city}, {serverInfo.country}";
+
+            Debug.Log($"[JoinMenu] ✅ Updated ServerConfig:");
+            Debug.Log($"[JoinMenu]   Address: {serverConfig.serverAddress}");
+            Debug.Log($"[JoinMenu]   Location: {serverConfig.serverLocation}");
+            Debug.Log($"[JoinMenu]   Players: {serverInfo.currentPlayers}/{serverInfo.maxPlayers}");
+            Debug.Log($"[JoinMenu]   Ping: {serverInfo.pingMs}ms");
         }
 
         /// <summary>
@@ -295,6 +398,13 @@ namespace WOS.UI
             // Unsubscribe from events
             NetworkClient.OnConnectedEvent -= OnClientConnected;
             NetworkClient.OnDisconnectedEvent -= OnClientDisconnected;
+
+            // Unsubscribe from server browser events
+            if (serverBrowser != null)
+            {
+                serverBrowser.OnServersUpdated -= OnServerListUpdated;
+                serverBrowser.OnError -= OnServerBrowserError;
+            }
 
             // Stop status checking when panel is hidden
             StopStatusChecking();
@@ -618,20 +728,54 @@ namespace WOS.UI
                 yield break;
             }
 
-            // Wait to simulate check
-            yield return new WaitForSeconds(0.5f);
+            // Perform HTTP health check
+            Debug.Log($"[JoinMenu] Performing HTTP health check to {serverIP}:{healthCheckPort}/health...");
 
-            // Simplified check: Assume server is up if IP is valid
-            // NOTE: Cannot actually check UDP servers with TCP connections
-            // For production: Add HTTP health endpoint to your server
-            Debug.Log($"[JoinMenu] Server uses UDP (KCP) - assuming available");
-            Debug.Log($"[JoinMenu] To add real health check: Implement HTTP endpoint on server");
-            Debug.Log($"[JoinMenu] FINAL RESULT: Assuming server is UP (manual check required)");
-            Debug.Log("[JoinMenu] ========== SERVER CHECK END ==========");
+            string healthUrl = $"http://{serverIP}:{healthCheckPort}/health";
+            Debug.Log($"[JoinMenu] Health check URL: {healthUrl}");
 
-            // Always show as Up for valid configured servers
-            // User can still attempt connection to see if server is actually responding
-            UpdateServerStatus(ServerStatus.Up);
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(healthUrl))
+            {
+                webRequest.timeout = (int)statusCheckTimeout;
+
+                // Send request
+                yield return webRequest.SendWebRequest();
+
+                Debug.Log("[JoinMenu] ========== SERVER CHECK END ==========");
+
+                // Check result
+                if (webRequest.result == UnityWebRequest.Result.Success)
+                {
+                    Debug.Log($"[JoinMenu] ✅ Health check SUCCESS - Response: {webRequest.downloadHandler.text}");
+
+                    // Try to parse player count from response (optional)
+                    try
+                    {
+                        string response = webRequest.downloadHandler.text;
+                        if (response.Contains("\"players\""))
+                        {
+                            // Simple extraction (could use JSON parser for production)
+                            int playerIndex = response.IndexOf("\"players\":");
+                            if (playerIndex >= 0)
+                            {
+                                string playerSubstring = response.Substring(playerIndex + 10);
+                                string playerCountStr = playerSubstring.Substring(0, playerSubstring.IndexOf(','));
+                                Debug.Log($"[JoinMenu] 👥 Server has {playerCountStr.Trim()} players");
+                            }
+                        }
+                    }
+                    catch { /* Ignore parsing errors */ }
+
+                    UpdateServerStatus(ServerStatus.Up);
+                }
+                else
+                {
+                    Debug.LogWarning($"[JoinMenu] ❌ Health check FAILED - Error: {webRequest.error}");
+                    Debug.LogWarning($"[JoinMenu] Result: {webRequest.result}");
+                    Debug.LogWarning($"[JoinMenu] Response Code: {webRequest.responseCode}");
+                    UpdateServerStatus(ServerStatus.Down);
+                }
+            }
         }
 
         /// <summary>

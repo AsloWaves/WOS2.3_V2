@@ -53,7 +53,12 @@ namespace Inventory.Scripts.Core.Controllers.Inputs.Middleware
         private void OnDisable()
         {
 #if ENABLE_INPUT_SYSTEM
-            _inventoryInputActions.Inventory.Disable();
+            if (_inventoryInputActions != null)
+            {
+                _inventoryInputActions.Inventory.Disable();
+                _inventoryInputActions.Dispose();
+                _inventoryInputActions = null;
+            }
 #endif
         }
 

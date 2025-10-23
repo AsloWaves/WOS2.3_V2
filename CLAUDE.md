@@ -167,6 +167,170 @@ Test client connection
 
 **Quick Reference**: See `TESTING_QUICK_START.md` for fast decision flowchart.
 
+## Server Connection & Beta Testing Workflow
+
+**Status**: ✅ **FULLY IMPLEMENTED AND TESTED** - Beta testing workflow problem solved!
+
+### The Problem (Before)
+Traditional hardcoded server IP approach caused major beta testing friction:
+- ❌ Redeploy server → IP/ports change
+- ❌ Rebuild client with new hardcoded IP
+- ❌ Redistribute 500MB build to all beta testers
+- ❌ Repeat every time server is deployed
+- ❌ Beta testers get update fatigue and quit
+
+### The Solution (Now)
+**Dual-Approach Server Discovery**: Primary (Backend API) + Fallback (FQDN)
+
+**Benefits**:
+- ✅ Build client **ONCE** with ServerBrowserManager configured
+- ✅ Distribute to beta testers **ONCE**
+- ✅ Redeploy server **as many times as needed** for development
+- ✅ Backend API auto-discovers new IP and ports
+- ✅ All beta testers connect automatically
+- ✅ **ZERO client rebuilds for server deployments**
+
+### Architecture
+
+**Primary Approach: Backend API Auto-Discovery**
+- Unity queries backend API on startup
+- Backend discovers current Edgegap deployment
+- Returns: IP, game port, health port, status
+- Unity auto-updates ServerConfig and reconnects
+- **Zero manual configuration on redeploy**
+
+**Fallback Approach: Static FQDN**
+- Uses Edgegap FQDN: `530c50ac1da5.pr.edgegap.net`
+- DNS resolves to current IP automatically
+- Works when backend API is unavailable
+- Provides reliable backup connection method
+
+### Current Configuration
+
+**Active Edgegap Deployment**:
+- Request ID: `530c50ac1da5`
+- FQDN: `530c50ac1da5.pr.edgegap.net` (static for this deployment)
+- IP: `172.232.162.171` (dynamic - auto-discovered)
+- Game Port: `31058` (External UDP → Internal 7777)
+- Health Port: `31269` (External TCP → Internal 8080)
+- Location: Seattle, Washington
+- Transport: KCP (UDP)
+
+**Backend API**:
+- URL: `https://wos-edgegap-proxy.onrender.com/api/servers`
+- Status: ✅ **FULLY OPERATIONAL**
+- Response Time: ~15-19ms
+- Auto-discovers server IP and ports on each query
+
+**ServerConfig.asset** (Fallback):
+```yaml
+serverAddress: 530c50ac1da5.pr.edgegap.net:31058
+serverLocation: Seattle, Washington
+useLocalhostInEditor: false
+```
+
+### How It Works
+
+**Normal Operation** (Primary - Backend API):
+```
+Unity Startup
+   ↓
+ServerBrowserManager.Start()
+   ↓
+Query: https://wos-edgegap-proxy.onrender.com/api/servers
+   ↓
+Backend queries Edgegap API
+   ↓
+Returns: { ip: "172.232.162.171", port: 31058, healthPort: 31269 }
+   ↓
+Auto-update ServerConfig with current IP/ports
+   ↓
+Restart health check with updated config
+   ↓
+Connect to server ✅
+```
+
+**Fallback Operation** (when backend unavailable):
+```
+Unity Startup
+   ↓
+ServerBrowserManager.Start()
+   ↓
+Query Backend API
+   ↓
+❌ Backend timeout or error
+   ↓
+Load ServerConfig.asset (FQDN)
+   ↓
+DNS resolves FQDN to current IP
+   ↓
+Connect using FQDN ✅
+```
+
+### What Changes on Redeploy?
+
+**NEVER Changes (Static)**:
+- ✅ FQDN: `530c50ac1da5.pr.edgegap.net` (for this deployment)
+- ✅ Request ID: `530c50ac1da5`
+- ✅ Internal Ports: 7777 (game), 8080 (health)
+
+**MIGHT Change (Auto-Discovered by Backend)**:
+- ⚠️ IP Address: Backend API auto-discovers
+- ⚠️ External Game Port: Backend API auto-discovers
+- ⚠️ External Health Port: Backend API auto-discovers
+
+**Result**: Client works across all redeployments with zero updates needed!
+
+### Implementation Files
+
+**Core Components**:
+- `Assets/Scripts/Networking/ServerBrowserManager.cs` - Backend API integration
+- `Assets/Scripts/UI/JoinMenuController.cs` - Health check and connection
+- `Assets/Resources/ServerConfigs/ServerConfig.asset` - Fallback configuration
+- `Assets/Scenes/MainMenu.unity` - ServerBrowserManager GameObject configured
+
+**Unity Editor Setup**:
+- ServerBrowserManager GameObject in MainMenu scene
+- Backend API URL: `https://wos-edgegap-proxy.onrender.com`
+- Fallback Config: ServerConfig.asset assigned
+- Auto-select best server: Enabled
+- Connected to JoinMenuController
+
+### When to Update ServerConfig
+
+**Update ServerConfig.asset ONLY if**:
+1. Creating a NEW Edgegap deployment (new Request ID)
+2. Backend API is down AND ports changed
+3. Switching to different server location
+
+**DO NOT update ServerConfig.asset for**:
+- ❌ Normal server redeployments (backend handles it)
+- ❌ IP changes (DNS resolves automatically)
+- ❌ Port changes (backend discovers automatically)
+
+### Detailed Documentation
+
+For complete setup and troubleshooting guides, see:
+- **`SERVER_BROWSER_SETUP.md`** - Complete Unity Editor setup guide
+- **`UNITY_FIXES.md`** - Dual-approach implementation details
+- **`SECURE_SERVER_INTEGRATION_GUIDE.md`** - Backend API architecture
+
+### Testing Workflow with Server Discovery
+
+**Development Cycle**:
+1. Make server changes in Unity
+2. Build Linux server (Tier 3 or 4)
+3. Deploy to Edgegap
+4. **That's it!** - All clients auto-discover new deployment
+5. No client rebuild needed ✅
+
+**Beta Testing Workflow**:
+1. Build client with ServerBrowserManager configured
+2. Distribute to beta testers
+3. Develop and redeploy server as needed
+4. Beta testers automatically connect to latest deployment
+5. Update client only for gameplay/UI changes
+
 ## Key Implementation Files
 
 ### Core Systems
@@ -319,24 +483,31 @@ EdgegapServer\                     # Linux server builds (in Unity project)
 
 ## Patch Notes Management System
 
-Comprehensive system for managing patch notes across GitHub, Game Launcher, and Discord. **Single source of truth** approach with automated distribution.
+**Two-Product Architecture**: Separate tracking for **Game** (WOS2.3_V2) and **Launcher** with independent versioning.
 
-### Quick Start: Publishing a Patch
+### 🎯 Key Concept: Two Separate Products
+
+**Game** and **Launcher** are distinct products with independent versions:
+- Game v1.0.3 can release while Launcher is still v1.0.5
+- Launcher v1.0.6 can release while Game is still v1.0.3
+- Each has its own CHANGELOG, templates, and patch notes directory
+
+### Quick Start: Publishing a Game Patch
 
 ```powershell
-# 1. Create patch notes from template
-Copy-Item "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\template.md" `
-          "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\1.0.X.md"
+# 1. Create patch notes from Game template
+Copy-Item "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Game\template.md" `
+          "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Game\1.0.X.md"
 
 # 2. Edit patch notes (write features, fixes, improvements)
-code "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\1.0.X.md"
+code "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Game\1.0.X.md"
 
 # 3. Build game in Unity to D:\Updater\WOS_Builds\Version_1.0.X\
 
-# 4. Publish everything with ONE command
+# 4. Publish with ProductType parameter
 cd D:\Updater\Scripts
-.\publish_patch.ps1 -Version "1.0.X" `
-  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\1.0.X.md" `
+.\publish_patch.ps1 -ProductType "Game" -Version "1.0.X" `
+  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Game\1.0.X.md" `
   -ClientUpdate `
   -CreateGitHubRelease `
   -PostToDiscord `
@@ -344,11 +515,32 @@ cd D:\Updater\Scripts
   -UpdateType "Client"
 ```
 
+### Quick Start: Publishing a Launcher Patch
+
+```powershell
+# 1. Create patch notes from Launcher template
+Copy-Item "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Launcher\template.md" `
+          "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Launcher\1.0.X.md"
+
+# 2. Edit patch notes
+code "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Launcher\1.0.X.md"
+
+# 3. Build launcher in PatchManager
+
+# 4. Publish with ProductType parameter
+cd D:\Updater\Scripts
+.\publish_patch.ps1 -ProductType "Launcher" -Version "1.0.X" `
+  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Launcher\1.0.X.md" `
+  -ClientUpdate `
+  -PostToDiscord `
+  -UpdateChangelog
+```
+
 **This automates**:
-- ✅ Game Launcher news feed update
-- ✅ GitHub release creation with tag (v1.0.X)
-- ✅ Discord announcement (@everyone)
-- ✅ CHANGELOG.md update
+- ✅ Game Launcher news feed update (with clear product labels)
+- ✅ GitHub release creation with product-specific tag (game-v1.0.X or launcher-v1.0.X)
+- ✅ Discord announcement
+- ✅ Correct CHANGELOG update (CHANGELOG_GAME.md or CHANGELOG_LAUNCHER.md)
 - ✅ CDN deployment to GitHub Pages
 
 **Time**: ~5 minutes (mostly PatchManager manual step)
@@ -357,19 +549,28 @@ cd D:\Updater\Scripts
 
 ```
 D:\GitFolder\UnityProjects\WOS2.3_V2\
-├── CHANGELOG.md              # Master changelog (all versions)
+├── CHANGELOG_GAME.md         # Game version history (1.0.0 → current)
+├── CHANGELOG_LAUNCHER.md     # Launcher version history (1.0.5 → current)
 ├── PatchNotes\
-│   ├── template.md           # Template for new patches
-│   ├── 1.0.0.md
-│   ├── 1.0.1.md
-│   └── 1.0.X.md              # Future patches
+│   ├── README.md             # Explains two-product system
+│   ├── Game\
+│   │   ├── template.md       # Game-specific template
+│   │   ├── 1.0.0.md         # Game versions
+│   │   ├── 1.0.1.md
+│   │   ├── 1.0.2.md         # Current game version
+│   │   └── 1.0.X.md         # Future game patches
+│   └── Launcher\
+│       ├── template.md       # Launcher-specific template
+│       ├── legacy-versions.md # Historical documentation (1.0.0-1.0.4)
+│       ├── 1.0.5.md         # Current launcher version
+│       └── 1.0.X.md         # Future launcher patches
 └── CLAUDE.md                 # This file
 
 D:\Updater\
 ├── PATCH_NOTES_SYSTEM.md     # Comprehensive system documentation
 └── Scripts\
     ├── README.md             # Script reference guide
-    ├── publish_patch.ps1     # ⭐ Main orchestration script
+    ├── publish_patch.ps1     # ⭐ Main orchestration script (UPDATED with -ProductType)
     ├── create_release.ps1    # GitHub release automation
     ├── post_discord.ps1      # Discord webhook poster
     ├── update_news.ps1       # Game launcher news (existing)
@@ -380,17 +581,26 @@ D:\Updater\
 
 **Primary Script**: `publish_patch.ps1` - Use this for all releases
 
-**Flags**:
-- `-ClientUpdate` - Update game launcher and push to CDN
-- `-CreateGitHubRelease` - Create GitHub release with tag
+**Required Parameters**:
+- `-ProductType` - **"Game" | "Launcher"** (REQUIRED - specifies which product)
+- `-Version` - Version number (e.g., "1.0.3")
+- `-PatchNotesPath` - Path to patch notes file
+
+**Action Flags**:
+- `-ClientUpdate` - Update game launcher news feed and push to CDN
+- `-CreateGitHubRelease` - Create GitHub release with product-specific tag
 - `-PostToDiscord` - Post announcement to Discord webhook
-- `-UpdateChangelog` - Append to CHANGELOG.md
-- `-UpdateType` - "Client" | "Server" | "Hotfix" | "Launcher"
+- `-UpdateChangelog` - Append to correct CHANGELOG (CHANGELOG_GAME.md or CHANGELOG_LAUNCHER.md)
 
 **Optional Parameters**:
+- `-UpdateType` - "Client" | "Server" | "Hotfix" | "Launcher" (default: "Client")
 - `-VideoURL` - YouTube trailer/showcase video
 - `-ImageURL` - Banner image for launcher
 - `-InteractionURL` - Link to patch notes website
+
+**Product-Specific Behavior**:
+- **Game**: Uses `PatchNotes/Game/`, updates `CHANGELOG_GAME.md`, creates tag `game-v1.0.X`
+- **Launcher**: Uses `PatchNotes/Launcher/`, updates `CHANGELOG_LAUNCHER.md`, creates tag `launcher-v1.0.X`
 
 ### Platform Distribution
 
@@ -415,30 +625,37 @@ D:\Updater\
 
 ### Example Workflows
 
-**Client-Only Update**:
+**Game Update (Client-Only)**:
 ```powershell
-.\publish_patch.ps1 -Version "1.0.3" `
-  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\1.0.3.md" `
+.\publish_patch.ps1 -ProductType "Game" -Version "1.0.3" `
+  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Game\1.0.3.md" `
   -ClientUpdate -PostToDiscord -UpdateChangelog `
   -UpdateType "Client"
 ```
 
-**Hotfix Release**:
+**Game Hotfix Release**:
 ```powershell
-.\publish_patch.ps1 -Version "1.0.3" `
-  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\1.0.3.md" `
+.\publish_patch.ps1 -ProductType "Game" -Version "1.0.3" `
+  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Game\1.0.3.md" `
   -ClientUpdate -CreateGitHubRelease -PostToDiscord `
   -UpdateType "Hotfix"
 ```
 
-**Major Release (Full Distribution)**:
+**Game Major Release (Full Distribution)**:
 ```powershell
-.\publish_patch.ps1 -Version "1.1.0" `
-  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\1.1.0.md" `
+.\publish_patch.ps1 -ProductType "Game" -Version "1.1.0" `
+  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Game\1.1.0.md" `
   -ClientUpdate -CreateGitHubRelease -PostToDiscord -UpdateChangelog `
   -UpdateType "Client" `
   -VideoURL "https://youtu.be/VIDEO_ID" `
   -InteractionURL "https://wavesofsteel.com/patch-notes/1.1.0"
+```
+
+**Launcher Update**:
+```powershell
+.\publish_patch.ps1 -ProductType "Launcher" -Version "1.0.6" `
+  -PatchNotesPath "D:\GitFolder\UnityProjects\WOS2.3_V2\PatchNotes\Launcher\1.0.6.md" `
+  -ClientUpdate -PostToDiscord -UpdateChangelog
 ```
 
 **Manual News Update Only** (when patch notes not needed):
@@ -558,15 +775,27 @@ For comprehensive details, see:
 ### Future Claude Sessions
 
 **When user asks about patch notes or publishing updates**:
-1. Reference this section for quick commands
-2. Check `PATCH_NOTES_SYSTEM.md` for comprehensive details
-3. Use `publish_patch.ps1` as primary tool
-4. Follow semantic versioning (MAJOR.MINOR.PATCH)
-5. Always create patch notes in `PatchNotes/` directory first
-6. Verify prerequisites (GitHub CLI, Discord webhook) before running
+1. **Determine product first**: Is this a Game update or Launcher update?
+2. Reference this section for quick commands
+3. Check `PatchNotes/README.md` for two-product system overview
+4. Check `PATCH_NOTES_SYSTEM.md` for comprehensive details
+5. Use `publish_patch.ps1` with `-ProductType` parameter
+6. Follow semantic versioning (MAJOR.MINOR.PATCH) independently for each product
+7. Always create patch notes in correct subdirectory (`PatchNotes/Game/` or `PatchNotes/Launcher/`)
+8. Verify prerequisites (GitHub CLI, Discord webhook) before running
 
 **Key Files to Check**:
-- Patch notes template: `PatchNotes/template.md`
-- Version history: `CHANGELOG.md`
-- Scripts location: `D:\Updater\Scripts\`
-- Current version: Check `game-launcher-cdn/App/Release/VersionInfo.info`
+- **System overview**: `PatchNotes/README.md` (explains two-product architecture)
+- **Game template**: `PatchNotes/Game/template.md`
+- **Launcher template**: `PatchNotes/Launcher/template.md`
+- **Game version history**: `CHANGELOG_GAME.md`
+- **Launcher version history**: `CHANGELOG_LAUNCHER.md`
+- **Scripts location**: `D:\Updater\Scripts\`
+- **Current game version**: Check `game-launcher-cdn/App/Release/VersionInfo.info`
+- **Current launcher version**: Check launcher about screen or build
+
+**Common Mistake to Avoid**:
+- ❌ DON'T use `publish_patch.ps1` without `-ProductType`
+- ❌ DON'T put Game patch notes in `PatchNotes/Launcher/` or vice versa
+- ❌ DON'T update `CHANGELOG.md` (it's now `CHANGELOG_GAME.md` and `CHANGELOG_LAUNCHER.md`)
+- ❌ DON'T assume Game and Launcher have the same version number

@@ -4,14 +4,22 @@ namespace WOS.Networking
 {
     /// <summary>
     /// Server configuration - stores Edgegap server IP
-    /// Update this asset when redeploying server to Edgegap
+    /// Automatically uses localhost in Unity Editor for testing
+    /// Uses production Edgegap IP in builds
     /// </summary>
     [CreateAssetMenu(fileName = "ServerConfig", menuName = "WOS/Networking/Server Configuration", order = 1)]
     public class ServerConfig : ScriptableObject
     {
-        [Header("Edgegap Server")]
-        [Tooltip("Current Edgegap server IP and port (e.g., 172.234.24.224:31139)")]
+        [Header("Production Server (Edgegap)")]
+        [Tooltip("Production Edgegap server IP and port (e.g., 172.234.24.224:31139)")]
         public string serverAddress = "172.234.24.224:31139";
+
+        [Header("Local Testing")]
+        [Tooltip("Use localhost when testing in Unity Editor (auto-enabled)")]
+        public bool useLocalhostInEditor = true;
+
+        [Tooltip("Local server address for Editor testing")]
+        public string localServerAddress = "localhost:7777";
 
         [Header("Display Info")]
         [Tooltip("Server location for display purposes")]
@@ -21,19 +29,35 @@ namespace WOS.Networking
         public bool showServerInfo = true;
 
         /// <summary>
+        /// Get the active server address (localhost in Editor if enabled, Edgegap otherwise)
+        /// </summary>
+        private string GetActiveAddress()
+        {
+#if UNITY_EDITOR
+            if (useLocalhostInEditor)
+            {
+                return localServerAddress;
+            }
+#endif
+            return serverAddress;
+        }
+
+        /// <summary>
         /// Get just the IP part (without port)
+        /// Automatically uses localhost in Unity Editor if enabled
         /// </summary>
         public string GetServerIP()
         {
-            if (string.IsNullOrEmpty(serverAddress)) return "";
+            string activeAddress = GetActiveAddress();
+            if (string.IsNullOrEmpty(activeAddress)) return "";
 
-            int colonIndex = serverAddress.IndexOf(':');
+            int colonIndex = activeAddress.IndexOf(':');
             if (colonIndex > 0)
             {
-                return serverAddress.Substring(0, colonIndex);
+                return activeAddress.Substring(0, colonIndex);
             }
 
-            return serverAddress;
+            return activeAddress;
         }
 
         /// <summary>
@@ -41,12 +65,13 @@ namespace WOS.Networking
         /// </summary>
         public ushort GetServerPort()
         {
-            if (string.IsNullOrEmpty(serverAddress)) return 7777;
+            string activeAddress = GetActiveAddress();
+            if (string.IsNullOrEmpty(activeAddress)) return 7777;
 
-            int colonIndex = serverAddress.IndexOf(':');
-            if (colonIndex > 0 && colonIndex < serverAddress.Length - 1)
+            int colonIndex = activeAddress.IndexOf(':');
+            if (colonIndex > 0 && colonIndex < activeAddress.Length - 1)
             {
-                string portString = serverAddress.Substring(colonIndex + 1);
+                string portString = activeAddress.Substring(colonIndex + 1);
                 if (ushort.TryParse(portString, out ushort port))
                 {
                     return port;
@@ -58,10 +83,37 @@ namespace WOS.Networking
 
         /// <summary>
         /// Get full address (IP:port)
+        /// Automatically uses localhost in Unity Editor if enabled
         /// </summary>
         public string GetFullAddress()
         {
-            return serverAddress;
+            return GetActiveAddress();
+        }
+
+        /// <summary>
+        /// Check if currently using local server
+        /// </summary>
+        public bool IsUsingLocalServer()
+        {
+#if UNITY_EDITOR
+            return useLocalhostInEditor;
+#else
+            return false;
+#endif
+        }
+
+        /// <summary>
+        /// Get server type for display
+        /// </summary>
+        public string GetServerType()
+        {
+#if UNITY_EDITOR
+            if (useLocalhostInEditor)
+            {
+                return "Local Test Server";
+            }
+#endif
+            return "Edgegap Production";
         }
     }
 }

@@ -12,9 +12,15 @@ namespace WOS.UI
     /// </summary>
     public class InGameMenuController : MonoBehaviour
     {
-        [Header("Menu Panel")]
-        [Tooltip("The in-game menu panel (should be hidden by default)")]
+        [Header("Menu Panels")]
+        [Tooltip("The main in-game menu panel (should be hidden by default)")]
         public GameObject menuPanel;
+
+        [Tooltip("The settings panel (optional, should be hidden by default)")]
+        public GameObject settingsPanel;
+
+        [Tooltip("The quit confirmation panel (should be hidden by default)")]
+        public GameObject quitConfirmationPanel;
 
         [Header("MUIP Buttons")]
         [Tooltip("Resume button - closes menu and returns to gameplay")]
@@ -28,6 +34,17 @@ namespace WOS.UI
 
         [Tooltip("Quit Game button - closes application")]
         public ButtonManager quitButton;
+
+        [Header("Settings Panel Buttons")]
+        [Tooltip("Back button on settings panel - returns to main menu")]
+        public ButtonManager settingsBackButton;
+
+        [Header("Quit Confirmation Buttons")]
+        [Tooltip("Yes button on quit confirmation panel - confirms quit")]
+        public ButtonManager quitYesButton;
+
+        [Tooltip("No button on quit confirmation panel - cancels quit")]
+        public ButtonManager quitNoButton;
 
         [Header("Configuration")]
         [Tooltip("Scene to load when exiting to main menu")]
@@ -62,6 +79,18 @@ namespace WOS.UI
             else
             {
                 Debug.LogError("[InGameMenu] Menu Panel not assigned!");
+            }
+
+            // Ensure settings panel is hidden on start
+            if (settingsPanel != null)
+            {
+                settingsPanel.SetActive(false);
+            }
+
+            // Ensure quit confirmation panel is hidden on start
+            if (quitConfirmationPanel != null)
+            {
+                quitConfirmationPanel.SetActive(false);
             }
 
             // Lock cursor for gameplay
@@ -182,6 +211,21 @@ namespace WOS.UI
             {
                 quitButton.onClick.AddListener(OnQuitClicked);
             }
+
+            if (settingsBackButton != null)
+            {
+                settingsBackButton.onClick.AddListener(OnSettingsBackClicked);
+            }
+
+            if (quitYesButton != null)
+            {
+                quitYesButton.onClick.AddListener(OnQuitConfirmYes);
+            }
+
+            if (quitNoButton != null)
+            {
+                quitNoButton.onClick.AddListener(OnQuitConfirmNo);
+            }
         }
 
         /// <summary>
@@ -194,12 +238,43 @@ namespace WOS.UI
         }
 
         /// <summary>
-        /// Settings button clicked - open settings menu (future implementation)
+        /// Settings button clicked - open settings panel
         /// </summary>
         public void OnSettingsClicked()
         {
-            Debug.Log("[InGameMenu] Settings clicked (not yet implemented)");
-            // TODO: Open settings panel when implemented
+            Debug.Log("[InGameMenu] Settings clicked");
+
+            if (settingsPanel != null)
+            {
+                // Hide main menu, show settings
+                if (menuPanel != null)
+                {
+                    menuPanel.SetActive(false);
+                }
+                settingsPanel.SetActive(true);
+            }
+            else
+            {
+                Debug.LogWarning("[InGameMenu] Settings panel not assigned!");
+            }
+        }
+
+        /// <summary>
+        /// Settings back button clicked - return to main menu
+        /// </summary>
+        public void OnSettingsBackClicked()
+        {
+            Debug.Log("[InGameMenu] Settings back clicked");
+
+            if (settingsPanel != null)
+            {
+                settingsPanel.SetActive(false);
+            }
+
+            if (menuPanel != null)
+            {
+                menuPanel.SetActive(true);
+            }
         }
 
         /// <summary>
@@ -220,17 +295,68 @@ namespace WOS.UI
         }
 
         /// <summary>
-        /// Quit button clicked - close application
+        /// Quit button clicked - show confirmation dialog
         /// </summary>
         public void OnQuitClicked()
         {
-            Debug.Log("[InGameMenu] Quit Game clicked");
+            Debug.Log("[InGameMenu] Quit Game clicked - showing confirmation");
+
+            if (quitConfirmationPanel != null)
+            {
+                // Hide main menu, show quit confirmation
+                if (menuPanel != null)
+                {
+                    menuPanel.SetActive(false);
+                }
+                quitConfirmationPanel.SetActive(true);
+            }
+            else
+            {
+                Debug.LogWarning("[InGameMenu] Quit confirmation panel not assigned! Quitting immediately.");
+                // Fallback: quit immediately if no confirmation panel
+                DisconnectFromNetwork();
+                QuitGame();
+            }
+        }
+
+        /// <summary>
+        /// Quit confirmation YES button - actually quit the game
+        /// </summary>
+        public void OnQuitConfirmYes()
+        {
+            Debug.Log("[InGameMenu] Quit confirmed - exiting game");
+
+            // Hide confirmation panel
+            if (quitConfirmationPanel != null)
+            {
+                quitConfirmationPanel.SetActive(false);
+            }
 
             // Disconnect from network first
             DisconnectFromNetwork();
 
             // Quit application
             QuitGame();
+        }
+
+        /// <summary>
+        /// Quit confirmation NO button - cancel quit and return to menu
+        /// </summary>
+        public void OnQuitConfirmNo()
+        {
+            Debug.Log("[InGameMenu] Quit cancelled - returning to menu");
+
+            // Hide confirmation panel
+            if (quitConfirmationPanel != null)
+            {
+                quitConfirmationPanel.SetActive(false);
+            }
+
+            // Show main menu again
+            if (menuPanel != null)
+            {
+                menuPanel.SetActive(true);
+            }
         }
 
         #endregion
@@ -339,6 +465,15 @@ namespace WOS.UI
 
             if (quitButton != null)
                 quitButton.onClick.RemoveListener(OnQuitClicked);
+
+            if (settingsBackButton != null)
+                settingsBackButton.onClick.RemoveListener(OnSettingsBackClicked);
+
+            if (quitYesButton != null)
+                quitYesButton.onClick.RemoveListener(OnQuitConfirmYes);
+
+            if (quitNoButton != null)
+                quitNoButton.onClick.RemoveListener(OnQuitConfirmNo);
         }
     }
 }

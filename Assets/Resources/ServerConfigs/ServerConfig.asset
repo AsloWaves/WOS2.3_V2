@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1295daf57f2192a4bab148879f630b22, type: 3}
   m_Name: ServerConfig
   m_EditorClassIdentifier: Assembly-CSharp::WOS.Networking.ServerConfig
-  serverAddress: 172.232.162.171:30509
+  serverAddress: 530c50ac1da5.pr.edgegap.net:31058
+  useLocalhostInEditor: 0
+  localServerAddress: 10.5.0.2:7777
   serverLocation: Seattle, Washington
   showServerInfo: 1

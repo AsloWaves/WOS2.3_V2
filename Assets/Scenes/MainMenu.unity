@@ -2797,7 +2797,7 @@ MonoBehaviour:
   autoStartInHeadless: 1
   defaultPort: 7777
   defaultMaxConnections: 300
-  serverStartScene: PortHarbor
+  serverStartScene: Main
   verboseLogging: 1
 --- !u!114 &431236457
 MonoBehaviour:
@@ -2829,10 +2829,13 @@ MonoBehaviour:
   serverStatusText: {fileID: 440763204}
   connectButton: {fileID: 877000075}
   backButton: {fileID: 883173502}
+  serverBrowser: {fileID: 1928675930}
+  autoSelectBestServer: 1
   serverConfig: {fileID: 11400000, guid: 1389bdb52898fd5498039c9f0c52ddd8, type: 2}
   gameSceneName: Main
   statusCheckInterval: 30
   statusCheckTimeout: 5
+  healthCheckPort: 31269
 --- !u!114 &431236462
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2847,9 +2850,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Mirror.Transports::kcp2k.KcpTransport
   port: 7777
   DualMode: 1
-  NoDelay: 1
-  Interval: 10
-  Timeout: 10000
+  NoDelay: 0
+  Interval: 20
+  Timeout: 30000
   RecvBufferSize: 7361536
   SendBufferSize: 7361536
   FastResend: 2
@@ -2859,7 +2862,7 @@ MonoBehaviour:
   MaximizeSocketBuffers: 1
   ReliableMaxMessageSize: 297433
   UnreliableMaxMessageSize: 1194
-  debugLog: 0
+  debugLog: 1
   statisticsGUI: 0
   statisticsLog: 0
 --- !u!114 &431236463
@@ -13177,6 +13180,58 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!1 &1928675929
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1928675931}
+  - component: {fileID: 1928675930}
+  m_Layer: 0
+  m_Name: ServerBrowserManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1928675930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1928675929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aec418b71d32a1745bc4c51fec9132c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WOS.Networking.ServerBrowserManager
+  backendApiUrl: https://wos-edgegap-proxy.onrender.com
+  fallbackConfig: {fileID: 11400000, guid: 1389bdb52898fd5498039c9f0c52ddd8, type: 2}
+  apiTimeout: 10
+  autoRefreshInterval: 30
+  isFetching: 0
+  serversFound: 0
+  healthyServers: 0
+  lastError: 
+--- !u!4 &1928675931
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1928675929}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1307.2533, y: 830.98804, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1943147938
 GameObject:
   m_ObjectHideFlags: 0
@@ -14587,4 +14642,5 @@ SceneRoots:
   m_Roots:
   - {fileID: 380634692}
   - {fileID: 431236455}
+  - {fileID: 1928675931}
   - {fileID: 1435151384}
